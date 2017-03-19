@@ -44,7 +44,7 @@ namespace DLL
 
             while (true)
             {
-                Console.Write("PS " + ExecutePowerShell(stdHandle, "$(get-location).Path").Replace(System.Environment.NewLine, String.Empty) + ">");
+                Console.Write("PS " + ExecutePowerShell(stdHandle, "$(Get-Location).Path").Replace(System.Environment.NewLine, String.Empty) + ">");
                 string cmd = Console.ReadLine();
                 Console.Write(ExecutePowerShell(stdHandle, cmd));
             }
