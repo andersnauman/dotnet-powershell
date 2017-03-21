@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Text;
-using System.Management.Automation;
 using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
 namespace DLL
 {
-    public class MainProgram
+    public class Main
     {
         [DllImport("kernel32.dll",
             EntryPoint = "GetStdHandle",
@@ -24,7 +23,7 @@ namespace DLL
         private const int STD_OUTPUT_HANDLE = -11;
         private const int MY_CODE_PAGE = 437;
         [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern bool SetConsoleTitle(String IpConsoleTitle);
+        public static extern bool SetConsoleTitle(String IpConsoleTitle);
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool SetConsoleTextAttribute(IntPtr hConsoleOutput, int wAttributes);
 
@@ -42,43 +41,22 @@ namespace DLL
             Console.WriteLine("Windows PowerShell");
             Console.WriteLine("Copyright(C) 2016 Microsoft Corporation. All rights reserved.\n");
 
+            PShell pshell = new PShell();
             while (true)
             {
-                Console.Write("PS " + ExecutePowerShell(stdHandle, "$(Get-Location).Path").Replace(System.Environment.NewLine, String.Empty) + ">");
+                Console.Write("PS " + pshell.ExecuteCmd(stdHandle, "$(Get-Location).Path").Replace(System.Environment.NewLine, String.Empty) + "> ");
                 string cmd = Console.ReadLine();
-                Console.Write(ExecutePowerShell(stdHandle, cmd));
+                Console.Write(pshell.ExecuteCmd(stdHandle, cmd));
             }
         }
-        public static string ExecutePowerShell(IntPtr stdHandle, string cmd)
+     
+    }
+    public class ExportMain
+    {
+        [DllExport("Main", CallingConvention = CallingConvention.Cdecl)]
+        public static void Main()
         {
-            try
-            {
-                PowerShell ps = PowerShell.Create();
-                ps.AddScript(cmd);
-                StringBuilder stringBuilder = new StringBuilder();
-                var result = ps.Invoke();
-                if (ps.Streams.Error.Count != 0)
-                {
-                    SetConsoleTextAttribute(stdHandle, 4);
-                    foreach (var obj in ps.Streams.Error)
-                    {
-                        stringBuilder.AppendLine(obj.ToString());
-                    }
-                }
-                else
-                {
-                    SetConsoleTextAttribute(stdHandle, 7);
-                    foreach (var obj in result)
-                    {
-                        stringBuilder.AppendLine(obj.ToString());
-                    }
-                }
-                return stringBuilder.ToString();
-            }
-            catch (Exception e)
-            {
-                return e.Message;
-            }
+            DLL.Main.LoadTerminal();
         }
     }
 }
