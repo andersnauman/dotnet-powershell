@@ -2,7 +2,7 @@
 
 namespace EXE
 {
-    public class Main
+    public class MainClass
     {
         public static void Main()
         {
