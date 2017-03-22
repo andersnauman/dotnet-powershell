@@ -23,6 +23,7 @@ namespace DLL
                 using (ps)
                 {
                     ps.AddScript(cmd);
+                    ps.AddCommand("Out-String");
                     Collection<PSObject> result = ps.Invoke();
                     if (ps.Streams.Error.Count != 0)
                     {
